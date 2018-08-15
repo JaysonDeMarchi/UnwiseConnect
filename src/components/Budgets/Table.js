@@ -3,12 +3,14 @@ import EditColumn from './EditColumn';
 import MultiSearch from './MultiSearch';
 import React, { Component } from 'react';
 import TicketTable from '../Tickets/Table';
+import { connect } from 'react-redux';
+import { convertToList } from '../../helpers/reformat';
   
 class Table extends Component {
   constructColumns() {
     const columns = this.props.fields.map((field) => {
       const column = {
-        property: field.name,
+        property: field.name,      
         header: {
           label: field.label,
         },
@@ -81,23 +83,28 @@ class Table extends Component {
     return (
       <div>
         <TicketTable
-          columns={columns}
           id="table-search-items"
           query={this.props.query}
           search={this.props.search}
-          tickets={this.props.items}
+          tickets={this.props.itemArray}
           toggleColumn={this.props.toggleColumn}
           userColumns={userColumns}
+          columns={columns}
         />
         <CSVExport 
-          items={this.props.items}
-          fields={this.props.fields} 
-          query={this.props.query}
-          rows={this.props.items}
+          visibleItems={this.props.visibleItems}
         />
       </div> 
     );
   }
 }
 
-export default Table;
+const mapStateToProps = state => ({
+  itemArray: convertToList(state.budgets.itemList),
+  fields: state.budgets.fields,
+  query: state.budgets.query,
+  userColumns: state.budgets.userColumns,
+  visibleItems: convertToList(state.budgets.visibleItemList),
+});
+
+export default connect(mapStateToProps)(Table);

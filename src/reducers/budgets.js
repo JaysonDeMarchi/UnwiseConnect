@@ -1,7 +1,7 @@
 import { ActionTypes } from '../config/constants';
 
 const initialState = {
-  items: [],
+  itemList: {},
   fields: [
     {
       filterType: 'textfield',
@@ -16,6 +16,24 @@ const initialState = {
       label: 'Phase',
       type: 'text',
       required: true,
+    },
+    {
+      filterType: 'custom',
+      name: 't&m',
+      label: 'T&M',
+      type: 'dropdown',
+      options: [
+        {
+          name: 't&m',
+          label: 'Fixed Fee',
+          value: 'FALSE',
+        },
+        {
+          name: 't&m',
+          label: 'T&M',
+          value: 'TRUE',
+        },
+      ],
     },
     {
       filterType: 'textfield',
@@ -83,13 +101,18 @@ const initialState = {
   query: {},
   userColumns: {
     summary: true,
-    phase: true,
+    phase: false,
     feature: true,
-    'budgetHours.column': true,
-    'budgetHours.value': true,
+    'budgetHours.column': false,
+    'budgetHours.value': false,
     tags: true,
     edit: true,
   },
+  visibleItemList: {},
+  creatingPlan: {
+    inProgress: false,
+    response: null,
+  }
 };
 
 export default (state = initialState, action) => {
@@ -97,27 +120,51 @@ export default (state = initialState, action) => {
     case ActionTypes.BUDGETS_ADD_ITEM:
       return {
         ...state,
-        items: [ 
-          ...state.items, 
-          action.payload.item, 
-        ],
+        itemList: {
+          ...state.itemList,
+          [action.payload.item.id]: action.payload.item,
+        }
+      };
+
+    case ActionTypes.BUDGETS_CREATE_PLAN:
+      return {
+        ...state,
+        creatingPlan: {
+          inProgress: true,
+          response: null,
+        }
+      };
+
+    case ActionTypes.BUDGETS_CREATE_PLAN_SUCCESS:
+      return {
+        ...state,
+        creatingPlan: {
+          inProgress: false,
+          response: action.payload.result,
+        }
       };
 
     case ActionTypes.BUDGETS_REMOVE_ITEM:
-      return {
-        ...state,
-        items: state.items.filter(item => item.id !== action.payload.itemId)
-      };
+      delete state.itemList[action.payload.itemId];
+      
+      return state;
 
     case ActionTypes.BUDGETS_SEARCH:
+      const visibleItemList = {};
+      action.payload.visibleItems.map((item) => {
+          visibleItemList[item.id] = item;
+
+          return item;
+      });
+
       return {
         ...state,
         query: action.payload.query,
+        visibleItemList,
       };
 
-		case ActionTypes.BUDGETS_SUBSCRIBE:
-			return state;
-
+    case ActionTypes.BUDGETS_SUBSCRIBE:
+      return state;
 
     case ActionTypes.BUDGETS_TOGGLE_COL:
       return {
@@ -131,13 +178,17 @@ export default (state = initialState, action) => {
     case ActionTypes.BUDGETS_UPDATE:
       return {
         ...state,
-        items: action.payload.items,
+        itemList: action.payload.itemList,
+        visibleItemList: action.payload.itemList,
       };
 
     case ActionTypes.BUDGETS_UPDATE_ITEM:
       return {
         ...state,
-        items: state.items.map(item => action.payload.updatedItem.id === item.id ? action.payload.updatedItem : item),
+        itemList: { 
+          ...state.itemList,
+          [action.payload.updatedItem.id]: action.payload.updatedItem,
+        },
       };
 
     default:
