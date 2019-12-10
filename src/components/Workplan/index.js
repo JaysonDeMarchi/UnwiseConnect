@@ -40,6 +40,35 @@ class Workplan extends Component {
 }
 
 const mapStateToProps = state => ({
+  'ticketAttributes': [
+    {
+      'id': 'summary',
+      'label': 'Summary',
+    },
+    {
+      'id': 'phase',
+      'label': 'Phase',
+    },
+    {
+      'id': 'budgetHours',
+      'label': 'Budget Hours',
+    },
+    {
+      'id': 'initialDescription',
+      'label': 'Initial Description',
+      'type': 'textarea',
+      'required': 'false',
+    },
+    {
+      'id': 'tags',
+      'label': 'Tags',
+    },
+    {
+      'id': 'aliases',
+      'label': 'Aliases',
+      'required': 'false',
+    },
+  ],
 });
 
 export default connect(mapStateToProps)(Workplan);
