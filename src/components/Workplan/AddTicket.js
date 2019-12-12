@@ -29,6 +29,8 @@ export default class AddTicket extends Component {
   }
 
   onSubmit(e) {
+    e.preventDefault();
+    this.props.onAdd(this.state.ticket);
   }
 
   render() {

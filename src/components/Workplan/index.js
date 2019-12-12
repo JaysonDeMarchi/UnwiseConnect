@@ -15,7 +15,13 @@ class Workplan extends Component {
   }
 
   addTicket(ticket) {
-    this.state.workplanTickets.push(ticket);
+    this.setState({
+      workplanTickets: [
+        ticket,
+        ...this.state.workplanTickets
+      ],
+      ...this.state
+    });
   }
 
   render() {
